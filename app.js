@@ -15,7 +15,7 @@ const app = express();
 //     extname: 'hbs',
 //   })
 // );
-app.set('view engine', 'hbs');
+app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -23,7 +23,7 @@ app.use(express.static(path.join(rootDir, 'public')));
 app.use('/admin', adminRoutes.routes);
 app.use(shopRoutes.routes);
 app.use((req, res, next) => {
-  res.status(404).render('404', { documentTitle: '404 Error: Page Not Found' });
+  res.status(404).render('404', { pageTitle: '404 Error: Page Not Found' });
 });
 
 app.listen(5501);
