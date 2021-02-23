@@ -22,12 +22,12 @@ exports.postAddProduct = router.post('/add-product', (req, res, next) => {
   res.redirect('/');
 });
 
-exports.getProducts = router.get((req, res, next) => {
+exports.getAdminProductList = (req, res, next) => {
   Product.fetchAll(products =>
-    res.render('admin/products', {
+    res.render('admin/product-list', {
       products: products,
-      pageTitle: 'Admin Products',
-      path: '/admin/products',
+      pageTitle: 'Admin Product List',
+      path: '/admin/product-list',
     })
   );
-});
+};

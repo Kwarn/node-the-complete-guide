@@ -9,7 +9,7 @@ const dummyData = [
 
 const getProductsFromFile = cb => {
   fs.readFile(filePath, (err, fileContent) => {
-    if (err) cb(dummyData);
+    if (err) cb([]);
     else cb(JSON.parse(fileContent));
   });
 };
