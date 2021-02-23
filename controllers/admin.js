@@ -17,7 +17,7 @@ exports.postAddProduct = router.post('/add-product', (req, res, next) => {
     price: req.body.price,
     description: req.body.description,
   };
-  const product = new Product({productData});
+  const product = new Product(productData);
   product.save();
   res.redirect('/');
 });
