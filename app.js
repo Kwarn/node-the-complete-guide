@@ -3,7 +3,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
-const errorController = require('./controllers/error')
+const errorController = require('./controllers/error');
 const rootDir = require('./util/path');
 
 const app = express();
@@ -18,4 +18,4 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(errorController.getError404Page);
 
-app.listen(5000);
+app.listen(5500);
