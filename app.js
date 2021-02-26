@@ -12,8 +12,8 @@ app.set('view engine', 'ejs');
 // this is the default anyway
 app.set('views', 'views');
 
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(rootDir, 'public')));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(errorController.getError404Page);
