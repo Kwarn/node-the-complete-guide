@@ -7,7 +7,7 @@ exports.getAddProductPage = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Products',
     path: '/admin/add-product',
-    editing: false
+    editing: false,
   });
 };
 
@@ -22,13 +22,33 @@ exports.getEditProductPage = (req, res, next) => {
         editing: !!req.query.edit,
       });
     } else {
-      res.redirect('/')
+      res.redirect('/');
     }
+  });
+};
+
+exports.postEditProduct = (req, res, next) => {
+  const productData = {
+    id: req.params.productId,
+    title: req.body.title,
+    imageUrl: req.body.imageUrl,
+    price: req.body.price,
+    description: req.body.description,
+  };
+  const product = new Product(productData);
+  product.save();
+  res.redirect('/admin/product-list');
+};
+
+exports.postDeleteProduct = (req, res, next) => {
+  Product.deleteProduct(req.params.productId, () => {
+    res.redirect('/admin/product-list');
   });
 };
 
 exports.postAddProduct = (req, res, next) => {
   const productData = {
+    id: null,
     title: req.body.title,
     imageUrl: req.body.imageUrl,
     price: req.body.price,

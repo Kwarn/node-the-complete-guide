@@ -2,7 +2,6 @@ const Product = require('../models/product');
 const Cart = require('../models/cart');
 
 const express = require('express');
-const router = express.Router();
 
 exports.getProducts = (req, res, next) => {
   Product.fetchAll(products =>
