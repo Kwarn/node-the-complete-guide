@@ -4,12 +4,11 @@ const rootPath = require('../util/path');
 const filePath = path.join(rootPath, 'data', 'cart.json');
 
 module.exports = class Cart {
-  static getCartSync() {
-    return JSON.parse(
-      fs.readFileSync(filePath, (err, fileContent) => {
-        if (err) console.log('Error Reading Cart: Empty or does not exist');
-      })
-    );
+  static getCart(cb) {
+    fs.readFile(filePath, (err, fileContent) => {
+      if (err) console.log('Error Reading Cart: Empty or does not exist');
+      else cb(JSON.parse(fileContent));
+    });
   }
 
   static getProductById(cart, id) {
@@ -41,27 +40,31 @@ module.exports = class Cart {
   }
 
   static addProduct(id, productPrice) {
-    const cart = this.getCartSync();
-    const [existingProduct, existingProductIndex] = this.getProductById(
-      cart,
-      id
-    );
-    if (existingProduct)
-      this.updateCart(
+    console.log(id)
+    this.getCart(cart => {
+      const [existingProduct, existingProductIndex] = this.getProductById(
         cart,
-        existingProduct,
-        existingProductIndex,
-        productPrice
+        id
       );
-    else this.addToCart(cart, id, productPrice);
+      if (existingProduct) {
+        console.log('IF PRODUCT', existingProduct);
+        this.updateCart(
+          cart,
+          existingProduct,
+          existingProductIndex,
+          productPrice
+        );
+      } else this.addToCart(cart, id, productPrice);
+    });
   }
 
-  static deleteProduct(id, price) {
-    fs.readFile(filePath, (err, fileContent) => {
-      if (err) return;
-      console.log('fileContent', fileContent);
-      // const products = [...cart.products]
-      const updatedPrice = 0;
+  static deleteProduct(id, productPrice) {
+    this.getCart(cart => {
+      const updatedCart = { ...cart };
+      const productQty = cart.products.find(p => p.id === id).qty;
+      updatedCart.products = cart.products.filter(p => p.id !== id);
+      updatedCart.totalPrice = cart.totalPrice - productPrice * productQty;
+      this.writeCartToFile(updatedCart);
     });
   }
 };

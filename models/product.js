@@ -1,17 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const rootPath = require('../util/path');
+const Cart = require('./cart');
 const filePath = path.join(rootPath, 'data', 'products.json');
-
-const dummyData = [
-  {
-    id: null,
-    title: 'test',
-    imageUrl: '',
-    price: '13.37',
-    description: 'Dummy data',
-  },
-];
 
 const getProductsFromFile = cb => {
   fs.readFile(filePath, (err, fileContent) => {
@@ -50,25 +41,21 @@ module.exports = class Product {
 
   static deleteProduct(id, cb) {
     getProductsFromFile(products => {
-      const updatedProducts = [...products].filter(
-        product => product.id !== id
-      );
+      const updatedProducts = products.filter(product => product.id !== id);
+      Cart.deleteProduct(id, products.find(p => p.id === id).price);
       writeProductsToFile(updatedProducts);
     });
-    cb();
+    // PASS PRODUCT PRICE
   }
 
   static fetchAll(cb) {
     getProductsFromFile(cb);
   }
 
-  static findById(productId, cb) {
-    return getProductsFromFile(products => {
-      const product = products.find(p => p.id === productId);
-      if (cb) {
-        cb(product);
-      }
-      return product
+  static findById(id, cb) {
+    getProductsFromFile(products => {
+      const product = products.find(p => p.id === id);
+      cb(product);
     });
   }
 };
