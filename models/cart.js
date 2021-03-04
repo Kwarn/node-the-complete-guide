@@ -59,9 +59,10 @@ module.exports = class Cart {
   static deleteProduct(id, productPrice) {
     this.getCart(cart => {
       const updatedCart = { ...cart };
-      const productQty = cart.products.find(p => p.id === id).qty;
+      const product = cart.products.find(p => p.id === id)
+      if(!product) return
       updatedCart.products = cart.products.filter(p => p.id !== id);
-      updatedCart.totalPrice = cart.totalPrice - productPrice * productQty;
+      updatedCart.totalPrice = cart.totalPrice - productPrice * product.qty;
       this.writeCartToFile(updatedCart);
     });
   }

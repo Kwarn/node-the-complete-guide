@@ -44,6 +44,7 @@ module.exports = class Product {
       const updatedProducts = products.filter(product => product.id !== id);
       Cart.deleteProduct(id, products.find(p => p.id === id).price);
       writeProductsToFile(updatedProducts);
+      cb();
     });
   }
 
