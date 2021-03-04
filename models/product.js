@@ -45,7 +45,6 @@ module.exports = class Product {
       Cart.deleteProduct(id, products.find(p => p.id === id).price);
       writeProductsToFile(updatedProducts);
     });
-    // PASS PRODUCT PRICE
   }
 
   static fetchAll(cb) {

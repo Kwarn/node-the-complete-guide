@@ -26,7 +26,7 @@ module.exports = class Cart {
   static updateCart(cart, product, productIndex, productPrice) {
     const updatedCart = { ...cart };
     const updatedProduct = { ...product };
-    updatedProduct.qty = product.qty + 1;
+    updatedProduct.qty = updatedProduct.qty + 1;
     updatedCart.products[productIndex] = updatedProduct;
     updatedCart.totalPrice = updatedCart.totalPrice + +productPrice;
     this.writeCartToFile(updatedCart);
@@ -40,14 +40,12 @@ module.exports = class Cart {
   }
 
   static addProduct(id, productPrice) {
-    console.log(id)
     this.getCart(cart => {
       const [existingProduct, existingProductIndex] = this.getProductById(
         cart,
         id
       );
       if (existingProduct) {
-        console.log('IF PRODUCT', existingProduct);
         this.updateCart(
           cart,
           existingProduct,
