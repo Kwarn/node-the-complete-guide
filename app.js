@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const errorController = require('./controllers/error');
 const rootDir = require('./util/path');
-const db = require('./util/database');
+const sequelize = require('./util/database');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -18,4 +18,10 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(errorController.getError404Page);
 
-app.listen(3000);
+sequelize
+  .sync()
+  .then(result => {
+    // console.log(result);
+    app.listen(3000);
+  })
+  .catch(err => console.log('err', err));
