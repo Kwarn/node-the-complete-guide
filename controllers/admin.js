@@ -55,8 +55,10 @@ exports.postAddProduct = (req, res, next) => {
     description: req.body.description,
   };
   const product = new Product(productData);
-  product.save();
-  res.redirect('/');
+  product
+    .save()
+    .then(() => res.redirect('/products'))
+    .catch();
 };
 
 exports.getAdminProductList = (req, res, next) => {
