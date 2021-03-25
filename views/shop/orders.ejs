@@ -2,6 +2,23 @@
 </head>
 <%- include('../includes/nav.ejs')%>
 <main>
+  <% if (orders.length <= 0) { %> 
+    <h1>No orders</h1>
+  <% } else { %>
+    <ul>
+      <% orders.forEach(order => { %>
+        <li>
+          <h1>#<%= order.id %> </h1>
+          <ul>
+            <% order.products.forEach(product => { %>
+              <li><%= product.title %> (<% product.orderItem.qty %>)</li>
+            <% }); %>
+          </ul>
+        </li>  
+      <% }); %>
+    </ul>
+  <% } %>
+
   <h1>Orders</h1>
 </main>
 <%- include('../includes/end.ejs') %>
