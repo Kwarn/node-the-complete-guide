@@ -2,6 +2,7 @@ const Product = require('../models/product');
 // const Cart = require('../models/cart');
 // const Order = require('../models/order');
 const express = require('express');
+const User = require('../models/user');
 
 exports.getProducts = (req, res, next) => {
   Product.fetchAll()
@@ -46,28 +47,10 @@ exports.postCartDeleteItem = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   const productId = req.body.productId;
-  let newQty = 1;
-  let fetchedCart;
-  req.user
-    .getCart()
-    .then(cart => {
-      fetchedCart = cart;
-      return cart.getProducts({ where: { id: productId } });
+  Product.findById(productId)
+    .then(product => {
+      return req.user.addToCart(product)
     })
-    .then(products => {
-      let product;
-      if (products.length > 0) {
-        product = products[0];
-      }
-      if (product) {
-        newQty = product.cartItem.qty + 1;
-        return product;
-      }
-      return Product.findByPk(productId);
-    })
-    .then(product =>
-      fetchedCart.addProduct(product, { through: { qty: newQty } })
-    )
     .then(() => {
       res.redirect('/cart');
     })
