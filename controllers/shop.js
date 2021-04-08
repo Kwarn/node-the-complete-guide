@@ -49,7 +49,7 @@ exports.postCart = (req, res, next) => {
   const productId = req.body.productId;
   Product.findById(productId)
     .then(product => {
-      return req.user.addToCart(product)
+      return req.user.addToCart(product);
     })
     .then(() => {
       res.redirect('/cart');
@@ -60,19 +60,14 @@ exports.postCart = (req, res, next) => {
 exports.getCartPage = (req, res, next) => {
   req.user
     .getCart()
-    .then(cart =>
-      cart
-        .getProducts()
-        .then(products =>
-          res.render('shop/cart', {
-            products: products,
-            pageTitle: 'Shopping Cart',
-            path: '/cart',
-          })
-        )
-        .catch(error => console.log(`error`, error))
+    .then(products =>
+      res.render('shop/cart', {
+        products: products,
+        pageTitle: 'Shopping Cart',
+        path: '/cart',
+      })
     )
-    .catch(err => console.log(`err`, err));
+    .catch(error => console.log(`GetCartPage error`, error));
 };
 
 exports.getOrdersPage = (req, res, next) => {
