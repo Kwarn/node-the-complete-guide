@@ -64,9 +64,8 @@ exports.getCartPage = (req, res, next) => {
 };
 
 exports.getOrdersPage = (req, res, next) => {
-  let orders;
   req.user
-    .getOrders({ include: ['products'] })
+    .getOrders()
     .then(orders => {
       res.render('shop/orders', {
         pageTitle: 'Orders',
@@ -97,24 +96,8 @@ exports.getCheckoutPage = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  let fetchedCart;
   req.user
-    .getCart()
-    .then(cart => {
-      fetchedCart = cart;
-      return cart.getProducts();
-    })
-    .then(products =>
-      req.user.createOrder().then(order =>
-        order.addProducts(
-          products.map(p => {
-            p.orderItem = { qty: p.cartItem.qty };
-            return p;
-          })
-        )
-      )
-    )
-    .then(result => fetchedCart.setProducts(null))
+    .addOrder()
     .then(result => {
       res.redirect('/orders');
     })

@@ -15,6 +15,26 @@ class User {
     return db.collection('users').insertOne(this);
   }
 
+  getCart() {
+    const db = getDb();
+    const productIds = this.cart.items.map(product => product.productId);
+    return db
+      .collection('products')
+      .find({ _id: { $in: productIds } })
+      .toArray()
+      .then(products => {
+        return products.map(p => {
+          return {
+            ...p,
+            qty: this.cart.items.find(
+              i => i.productId.toString() === p._id.toString()
+            ).qty,
+          };
+        });
+      })
+      .catch(err => console.log('Get Cart Error', err));
+  }
+
   addToCart(product) {
     const cartProductIndex = this.cart.items.findIndex(cp => {
       //productId from mongoDb is technically not a string
@@ -61,24 +81,37 @@ class User {
       );
   }
 
-  getCart() {
+  getOrders() {
     const db = getDb();
-    const productIds = this.cart.items.map(product => product.productId);
     return db
-      .collection('products')
-      .find({ _id: { $in: productIds } })
-      .toArray()
+      .collection('orders')
+      .find({ 'user._id': new mongodb.ObjectId(this._id) })
+      .toArray();
+  }
+
+  addOrder() {
+    const db = getDb();
+    return this.getCart()
       .then(products => {
-        return products.map(p => {
-          return {
-            ...p,
-            qty: this.cart.items.find(
-              i => i.productId.toString() === p._id.toString()
-            ).qty,
-          };
-        });
+        const order = {
+          items: products,
+          user: {
+            _id: new mongodb.ObjectId(this._id),
+            name: this.name,
+            email: this.email,
+          },
+        };
+        return db.collection('orders').insertOne(order);
       })
-      .catch(err => console.log('Get Cart Error', err));
+      .then(result => {
+        this.cart = { items: [] };
+        return db
+          .collection('users')
+          .updateOne(
+            { _id: new mongodb.ObjectId(this._id) },
+            { $set: { cart: { items: [] } } }
+          );
+      });
   }
 
   static findById(userId) {
