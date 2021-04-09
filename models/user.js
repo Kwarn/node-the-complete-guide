@@ -16,7 +16,7 @@ class User {
   }
 
   getCleanCart() {
-    //removes Invalid Product ID's from database and returns mongodb.ObjectID array of valid IDs
+    //removes Invalid Cart Product ID's from database and returns mongodb.ObjectID array of valid IDs
     return Product.fetchAll()
       .then(products => products.map(product => product._id.toString()))
       .then(strProductIds => {
@@ -40,10 +40,8 @@ class User {
   }
 
   getCart() {
-    console.log(this);
     const db = getDb();
     return this.getCleanCart().then(validCartProductIds => {
-      let cartProductIds = this.cart.items.map(product => product.productId);
       return db
         .collection('products')
         .find({ _id: { $in: validCartProductIds } })
