@@ -15,24 +15,51 @@ class User {
     return db.collection('users').insertOne(this);
   }
 
+  getCleanCart() {
+    //removes Invalid Product ID's from database and returns mongodb.ObjectID array of valid IDs
+    return Product.fetchAll()
+      .then(products => products.map(product => product._id.toString()))
+      .then(strProductIds => {
+        const strCartProductIds = this.cart.items.map(product =>
+          product.productId.toString()
+        );
+        const strInvalidProductIds = strCartProductIds.filter(
+          id => !strProductIds.includes(id)
+        );
+        const strValidProductIds = strCartProductIds.filter(id =>
+          strProductIds.includes(id)
+        );
+        const idsToDelete = strInvalidProductIds.map(
+          id => new mongodb.ObjectId(id)
+        );
+
+        idsToDelete.forEach(id => this.removeFromCart(id));
+
+        return strValidProductIds.map(id => new mongodb.ObjectId(id));
+      });
+  }
+
   getCart() {
+    console.log(this);
     const db = getDb();
-    const productIds = this.cart.items.map(product => product.productId);
-    return db
-      .collection('products')
-      .find({ _id: { $in: productIds } })
-      .toArray()
-      .then(products => {
-        return products.map(p => {
-          return {
-            ...p,
-            qty: this.cart.items.find(
-              i => i.productId.toString() === p._id.toString()
-            ).qty,
-          };
-        });
-      })
-      .catch(err => console.log('Get Cart Error', err));
+    return this.getCleanCart().then(validCartProductIds => {
+      let cartProductIds = this.cart.items.map(product => product.productId);
+      return db
+        .collection('products')
+        .find({ _id: { $in: validCartProductIds } })
+        .toArray()
+        .then(products => {
+          return products.map(p => {
+            return {
+              ...p,
+              qty: this.cart.items.find(
+                i => i.productId.toString() === p._id.toString()
+              ).qty,
+            };
+          });
+        })
+        .catch(err => console.log('Get Cart Error', err));
+    });
   }
 
   addToCart(product) {
@@ -78,7 +105,8 @@ class User {
       .updateOne(
         { _id: new mongodb.ObjectId(this._id) },
         { $set: { cart: { items: updatedCartItems } } }
-      );
+      )
+      .then(result => console.log('Product Removed From Cart'));
   }
 
   getOrders() {
