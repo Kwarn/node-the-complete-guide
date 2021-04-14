@@ -30,7 +30,7 @@ app.use(errorController.getError404Page);
 mongoose
   .connect(
     'mongodb+srv://user1:l99vRGo3WaPuTcZ8@cluster0.4nmcs.mongodb.net/shop?retryWrites=true&w=majority',
-    { useNewUrlParser: true, useUnifiedTopology: true }
+    { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false }
   )
   .then(result => {
     console.log('Mongoose Connected To MongoDB');

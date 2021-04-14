@@ -50,15 +50,15 @@ exports.getEditProductPage = (req, res, next) => {
 };
 
 exports.postEditProduct = (req, res, next) => {
-  const product = new Product(
-    req.body.title,
-    req.body.imageUrl,
-    req.body.price,
-    req.body.description,
-    req.body.productId
-  );
-  return product
-    .save()
+  const productId = req.body.productId;
+  Product.findById(productId)
+    .then(product => {
+      product.title = req.body.title;
+      product.price = req.body.price;
+      product.discription = req.body.description;
+      product.imageUrl = req.body.imageUrl;
+      return product.save();
+    })
     .then(result => {
       console.log('Product Updated');
       res.redirect('/');
@@ -67,7 +67,7 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.postDeleteProduct = (req, res, next) => {
-  Product.deleteById(req.body.productId)
+  Product.findByIdAndRemove(req.body.productId)
     .then(() => {
       console.log('Product Destroyed');
       res.redirect('/admin/product-list');
@@ -76,7 +76,7 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getAdminProductList = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then(products => {
       res.render('admin/product-list', {
         products: products,

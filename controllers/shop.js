@@ -5,8 +5,9 @@ const express = require('express');
 const User = require('../models/user');
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then(products => {
+      console.log(products);
       res.render('shop/product-list', {
         products: products,
         pageTitle: 'All Products',
@@ -77,7 +78,7 @@ exports.getOrdersPage = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then(products => {
       res.render('shop/index', {
         products: products,
