@@ -3,6 +3,7 @@ const Product = require('../models/product');
 // const Order = require('../models/order');
 const express = require('express');
 const User = require('../models/user');
+const Order = require('../models/order');
 
 exports.getProducts = (req, res, next) => {
   Product.find()
@@ -67,8 +68,7 @@ exports.getCartPage = (req, res, next) => {
 };
 
 exports.getOrdersPage = (req, res, next) => {
-  req.user
-    .getOrders()
+  Order.find({ 'user.userId': req.user._id })
     .then(orders => {
       res.render('shop/orders', {
         pageTitle: 'Orders',
@@ -99,10 +99,33 @@ exports.getCheckoutPage = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
+  // res.redirect('/orders');
   req.user
-    .addOrder()
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+      console.log('postOrder', user);
+      const products = user.cart.items.map(p => {
+        return {
+          product: { ...p.productId._doc },
+          qty: p.qty,
+        };
+      });
+      const order = new Order({
+        products: products,
+        user: {
+          name: req.user.name,
+          email: req.user.email,
+          userId: req.user,
+        },
+      });
+      order.save();
+    })
+    .then(result => {
+      req.user.clearCart();
+    })
     .then(result => {
       res.redirect('/orders');
     })
-    .catch(err => console.log(`err`, err));
+    .catch(err => console.log(`Post Order Error`, err));
 };
