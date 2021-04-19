@@ -13,6 +13,7 @@ exports.getProducts = (req, res, next) => {
         products: products,
         pageTitle: 'All Products',
         path: '/products',
+        isAuthenticated: req.session.user,
       });
     })
     .catch(err => console.log('error', err));
@@ -27,6 +28,7 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: `${product.title} Details`,
         path: '/product-list',
+        isAuthenticated: req.session.user,
       });
     })
     .catch(err => console.log(err));
@@ -62,18 +64,20 @@ exports.getCartPage = (req, res, next) => {
         products: products,
         pageTitle: 'Shopping Cart',
         path: '/cart',
+        isAuthenticated: req.session.user,
       });
     })
     .catch(error => console.log(`GetCartPage error`, error));
 };
 
 exports.getOrdersPage = (req, res, next) => {
-  Order.find({ 'user.userId': req.user._id })
+  Order.find({ 'user.userId': req.session.user._id })
     .then(orders => {
       res.render('shop/orders', {
         pageTitle: 'Orders',
         path: '/orders',
         orders: orders,
+        isAuthenticated: req.session.user,
       });
     })
     .catch(error => console.log(`error`, error));
@@ -86,6 +90,7 @@ exports.getIndex = (req, res, next) => {
         products: products,
         pageTitle: 'Shop',
         path: 'shop',
+        isAuthenticated: req.session.user,
       });
     })
     .catch(err => console.log('error', err));
@@ -95,6 +100,7 @@ exports.getCheckoutPage = (req, res, next) => {
   res.render('shop/checkout', {
     pageTitle: 'Checkout',
     path: '/checkout',
+    isAuthenticated: req.session.user,
   });
 };
 
@@ -114,9 +120,9 @@ exports.postOrder = (req, res, next) => {
       const order = new Order({
         products: products,
         user: {
-          name: req.user.name,
-          email: req.user.email,
-          userId: req.user,
+          name: req.session.user.name,
+          email: req.session.user.email,
+          userId: req.session.user,
         },
       });
       order.save();
