@@ -8,7 +8,6 @@ const Order = require('../models/order');
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then(products => {
-      console.log(products);
       res.render('shop/product-list', {
         products: products,
         pageTitle: 'All Products',
@@ -105,7 +104,6 @@ exports.getCheckoutPage = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  // res.redirect('/orders');
   req.user
     .populate('cart.items.productId')
     .execPopulate()

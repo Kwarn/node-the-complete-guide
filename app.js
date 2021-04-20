@@ -54,16 +54,16 @@ mongoose
     useFindAndModify: false,
   })
   .then(result => {
-    User.findOne().then(user => {
-      if (!user) {
-        const user = new User({
-          name: 'Karl',
-          email: 'k@w.dev',
-          cart: { items: [] },
-        });
-        user.save();
-      }
-    });
+    // User.findOne().then(user => {
+    //   if (!user) {
+    //     const user = new User({
+    //       name: 'Karl',
+    //       email: 'k@w.dev',
+    //       cart: { items: [] },
+    //     });
+    //     user.save();
+    //   }
+    // });
     console.log('Mongoose Connected To MongoDB');
     app.listen(3000);
   })
