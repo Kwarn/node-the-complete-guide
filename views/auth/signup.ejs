@@ -20,6 +20,7 @@
                 <label for="confirmPassword">Confirm Password</label>
                 <input type="password" name="confirmPassword" id="confirmPassword">
             </div>
+            <input name="_csrf" type="hidden" , value="<%= csrfToken %>" />
             <button class="btn" type="submit">Login</button>
         </form>
     </main>

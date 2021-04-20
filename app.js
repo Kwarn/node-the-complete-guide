@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
 const bodyParser = require('body-parser');
 const errorController = require('./controllers/error');
 const rootDir = require('./util/path');
@@ -19,6 +20,8 @@ const store = new MongoDBStore({ uri: MONGODB_URI, collection: 'sessions' });
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
+const csrfProtection = csrf();
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
@@ -30,6 +33,8 @@ app.use(
   })
 );
 
+app.use(csrfProtection);
+
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next();
@@ -39,9 +44,13 @@ app.use((req, res, next) => {
       req.user = user;
       next();
     })
-    .catch(err => console.log(`Error`, err));
+    .catch(err => console.log(`Mapping user to req.user error`, err));
 });
-
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.user;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
