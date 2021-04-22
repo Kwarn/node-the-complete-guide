@@ -1,8 +1,8 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const { validationResult } = require('express-validator');
 const crypto = require('crypto');
-const { reset } = require('nodemon');
 
 var transport = nodemailer.createTransport({
   host: 'smtp.mailtrap.io',
@@ -71,7 +71,16 @@ exports.postLogout = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  // const confirmPassword = req.body.confirmPassword;
+  const confirmPassword = req.body.confirmPassword;
+  const error = validationResult(req).array()[0].msg;
+  // console.log('validation Errors --', errors);
+  if (error) {
+    return res.status(422).render('auth/signup', {
+      path: '/signup',
+      pageTitle: 'Signup',
+      errorMessage: error,
+    });
+  }
   User.findOne({ email: email })
     .then(userDoc => {
       if (userDoc) {
@@ -128,7 +137,7 @@ exports.getReset = (req, res, next) => {
 
   res.render('auth/reset', {
     pageTitle: 'Reset Password',
-    path: 'auth/reset',
+    path: '/reset',
     errorMessage: message,
   });
 };
