@@ -32,12 +32,22 @@ exports.getLogin = (req, res, next) => {
     pageTitle: 'Login',
     path: '/login',
     errorMessage: message,
+    previousLoginDetails: { email: '' },
   });
 };
 
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  const error = validationResult(req).array()[0];
+  if (error) {
+    return res.status(422).render('auth/login', {
+      path: '/login',
+      pageTitle: 'Login',
+      errorMessage: error.msg,
+      previousLoginDetails: { email: email },
+    });
+  }
   User.findOne({ email: email }).then(user => {
     if (!user) {
       req.flash('Login Error', 'Invalid Email or Password');
@@ -71,46 +81,39 @@ exports.postLogout = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  const confirmPassword = req.body.confirmPassword;
-  const error = validationResult(req).array()[0].msg;
+  const errors = validationResult(req).array();
   // console.log('validation Errors --', errors);
-  if (error) {
+  if (errors) {
     return res.status(422).render('auth/signup', {
       path: '/signup',
       pageTitle: 'Signup',
-      errorMessage: error,
+      errorMessage: errors[0].msg,
+      previousLoginDetails: {
+        email: email,
+      },
+      validationErrors: errors,
     });
   }
-  User.findOne({ email: email })
-    .then(userDoc => {
-      if (userDoc) {
-        req.flash(
-          'User Exists Error',
-          'That email is already registered. Try signing in.'
-        );
-        return res.redirect('/signup');
-      }
-      return bcrypt
-        .hash(password, 12)
-        .then(encryptedPass => {
-          const newUser = new User({
-            email: email,
-            password: encryptedPass,
-            cart: { items: [] },
-          });
-          return newUser.save();
-        })
-        .then(result => {
-          res.redirect('/login');
-          return transport.sendMail({
-            from: 'shop@nodecomplete.com',
-            to: email,
-            subject: 'Signup Success',
-            html: '<h1>Successful sign up</h1>',
-          });
-        });
+
+  bcrypt
+    .hash(password, 12)
+    .then(encryptedPass => {
+      const newUser = new User({
+        email: email,
+        password: encryptedPass,
+        cart: { items: [] },
+      });
+      return newUser.save();
     })
-    .catch(err => console.log(`Signup Error -- `, err));
+    .then(result => {
+      res.redirect('/login');
+      return transport.sendMail({
+        from: 'shop@nodecomplete.com',
+        to: email,
+        subject: 'Signup Success',
+        html: '<h1>Successful sign up</h1>',
+      });
+    });
 };
 
 exports.getSignup = (req, res, next) => {
@@ -124,6 +127,10 @@ exports.getSignup = (req, res, next) => {
     path: '/signup',
     pageTitle: 'Signup',
     errorMessage: message,
+    previousLoginDetails: {
+      email: '',
+    },
+    validationErrors: [],
   });
 };
 
