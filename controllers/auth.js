@@ -33,25 +33,31 @@ exports.getLogin = (req, res, next) => {
     path: '/login',
     errorMessage: message,
     previousLoginDetails: { email: '' },
+    validationErrors: [],
   });
 };
 
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  const error = validationResult(req).array()[0];
-  if (error) {
+  const errors = validationResult(req);
+
+  function renderLoginPage(error, errors = []) {
     return res.status(422).render('auth/login', {
       path: '/login',
       pageTitle: 'Login',
-      errorMessage: error.msg,
+      errorMessage: error,
       previousLoginDetails: { email: email },
+      validationErrors: errors,
     });
+  }
+
+  if (!errors.isEmpty()) {
+    return renderLoginPage(errors.array()[0].msg, errors.array());
   }
   User.findOne({ email: email }).then(user => {
     if (!user) {
-      req.flash('Login Error', 'Invalid Email or Password');
-      return res.redirect('/login');
+      return renderLoginPage('Invalid email or password.');
     }
     bcrypt
       .compare(password, user.password)
@@ -63,7 +69,7 @@ exports.postLogin = (req, res, next) => {
             res.redirect('/');
           });
         }
-        res.redirect('/login');
+        return renderLoginPage('Invalid email or password.');
       })
       .catch(err => {
         console.log(`bcrypt compare err`, err);

@@ -9,7 +9,7 @@ router.get('/login', authController.getLogin);
 router.post(
   '/login',
   [
-    check('email', 'Please enter a valid email'),
+    check('email', 'Please enter a valid email').isEmail(),
     check(
       'password',
       'Your password will be at least 5 characters long and contain only numbers and letters.'
