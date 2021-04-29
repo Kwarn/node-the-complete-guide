@@ -22,8 +22,6 @@ exports.postAddProduct = (req, res, next) => {
   const description = req.body.description;
 
   const errors = validationResult(req).errors;
-  console.log(`postAddProduct errors`, errors);
-  console.log('errors exists > 0', errors.length > 0);
   if (errors.length > 0) {
     return res.status(422).render('admin/edit-product', {
       pageTitle: 'Add Product',
@@ -66,6 +64,8 @@ exports.getEditProductPage = (req, res, next) => {
           pageTitle: 'Edit Products',
           path: '/admin/edit-product',
           editing: !!req.query.edit,
+          errorMessage: '',
+          validationErrors: [],
         });
       } else {
         res.redirect('/');
@@ -75,7 +75,28 @@ exports.getEditProductPage = (req, res, next) => {
 };
 
 exports.postEditProduct = (req, res, next) => {
+  const title = req.body.title;
+  const imageUrl = req.body.imageUrl;
+  const price = req.body.price;
+  const description = req.body.description;
   const productId = req.body.productId;
+  const errors = validationResult(req).errors;
+  if (errors.length > 0) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Edit Product',
+      path: '/admin/edit-product',
+      editing: true,
+      product: {
+        _id: productId,
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+      },
+      errorMessage: errors[0].msg,
+      validationErrors: errors,
+    });
+  }
   Product.findById(productId)
     .then(product => {
       if (product.userId.toString() !== req.user._id.toString()) {
