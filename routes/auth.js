@@ -9,11 +9,12 @@ router.get('/login', authController.getLogin);
 router.post(
   '/login',
   [
-    check('email', 'Please enter a valid email').isEmail(),
+    check('email', 'Please enter a valid email').isEmail().normalizeEmail(),
     check(
       'password',
       'Your password will be at least 5 characters long and contain only numbers and letters.'
     )
+      .trim()
       .isLength({ min: 5 })
       .isAlphanumeric(),
   ],
@@ -38,11 +39,13 @@ router.post(
             );
           }
         });
-      }),
+      })
+      .normalizeEmail(),
     body(
       'password',
       'Password must be at least 5 characters long and contain only numbers and letters.'
     )
+      .trim()
       .isLength({ min: 5 })
       .isAlphanumeric(),
     body('confirmPassword', 'Passwords do not match.').custom(

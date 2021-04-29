@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 const { validationResult } = require('express-validator');
 const crypto = require('crypto');
 
-var transport = nodemailer.createTransport({
+const transport = nodemailer.createTransport({
   host: 'smtp.mailtrap.io',
   port: 2525,
   auth: {
@@ -88,8 +88,8 @@ exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const errors = validationResult(req).array();
-  // console.log('validation Errors --', errors);
-  if (errors) {
+  if (errors.length > 0) {
+    console.log('validation Errors --', errors);
     return res.status(422).render('auth/signup', {
       path: '/signup',
       pageTitle: 'Signup',

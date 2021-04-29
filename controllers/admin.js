@@ -2,12 +2,16 @@ const Product = require('../models/product');
 const mongodb = require('mongodb');
 const express = require('express');
 const router = express.Router();
+const { validationResult } = require('express-validator');
 
 exports.getAddProductPage = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Products',
     path: '/admin/add-product',
     editing: false,
+    previousValues: [],
+    errorMessage: null,
+    validationErrors: [],
   });
 };
 
@@ -16,6 +20,26 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
+
+  const errors = validationResult(req).errors;
+  console.log(`postAddProduct errors`, errors);
+  console.log('errors exists > 0', errors.length > 0);
+  if (errors.length > 0) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/edit-product',
+      editing: false,
+      previousValues: {
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+      },
+      errorMessage: errors[0].msg,
+      validationErrors: errors,
+    });
+  }
+
   const product = new Product({
     title: title,
     price: price,
@@ -29,7 +53,7 @@ exports.postAddProduct = (req, res, next) => {
       console.log('Created Product');
       res.redirect('/admin/product-list');
     })
-    .catch(err => console.log(`err`, err));
+    .catch(err => console.log(`adminAddProduct save product err`, err));
 };
 
 exports.getEditProductPage = (req, res, next) => {
