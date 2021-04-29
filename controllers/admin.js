@@ -6,6 +6,12 @@ const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 // const Error = require(err)
 
+const errorHandler = (error, next) => {
+  const _error = new Error(error);
+  _error.httpStatusCode = 500;
+  return next(_error);
+};
+
 exports.getAddProductPage = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Products',
@@ -42,20 +48,18 @@ exports.postAddProduct = (req, res, next) => {
 
   const product = new Product({
     title: title,
+    imageUrl: imageUrl,
     price: price,
     description: description,
-    imageUrl: imageUrl,
     userId: req.session.user,
   });
   product
     .save()
     .then(result => {
-      console.log('Created Product');
+      console.log('Created Product', result);
       res.redirect('/admin/product-list');
     })
-    .catch(err => {
-      res.redirect('/500');
-    });
+    .catch(err => errorHandler(err, next));
 };
 
 exports.getEditProductPage = (req, res, next) => {
@@ -75,7 +79,7 @@ exports.getEditProductPage = (req, res, next) => {
         res.redirect('/');
       }
     })
-    .catch(err => console.log('err', err));
+    .catch(err => errorHandler(err, next));
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -84,6 +88,8 @@ exports.postEditProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
   const productId = req.body.productId;
+
+  console.log('--------DESC----------', description);
   const errors = validationResult(req).errors;
   if (errors.length > 0) {
     return res.status(422).render('admin/edit-product', {
@@ -106,17 +112,17 @@ exports.postEditProduct = (req, res, next) => {
       if (product.userId.toString() !== req.user._id.toString()) {
         return res.redirect('/');
       }
-      product.title = req.body.title;
-      product.price = req.body.price;
-      product.discription = req.body.description;
-      product.imageUrl = req.body.imageUrl;
+      product.title = title
+      product.price = price
+      product.description = description
+      product.imageUrl = imageUrl
       product.userId = req.user;
       return product.save().then(result => {
         console.log('Product Updated');
         res.redirect('/');
       });
     })
-    .catch(err => console.log('err', err));
+    .catch(err => errorHandler(err, next));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
@@ -125,7 +131,7 @@ exports.postDeleteProduct = (req, res, next) => {
       console.log('Product Destroyed');
       res.redirect('/admin/product-list');
     })
-    .catch(err => console.log(err));
+    .catch(err => errorHandler(err, next));
 };
 
 exports.getAdminProductList = (req, res, next) => {
@@ -139,5 +145,5 @@ exports.getAdminProductList = (req, res, next) => {
         path: '/admin/product-list',
       });
     })
-    .catch(err => console.log('err', err));
+    .catch(err => errorHandler(err, next));
 };

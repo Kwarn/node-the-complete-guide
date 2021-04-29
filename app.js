@@ -61,6 +61,10 @@ app.use(shopRoutes);
 app.use(authRoutes);
 app.get('/500', errorController.getError500Page);
 app.use(errorController.getError404Page);
+app.use((error, req, res, next) => {
+  // res.status(error.httpStatusCode).render(...)
+  res.redirect('/500');
+});
 
 mongoose
   .connect(MONGODB_URI, {
@@ -69,17 +73,9 @@ mongoose
     useFindAndModify: false,
   })
   .then(result => {
-    // User.findOne().then(user => {
-    //   if (!user) {
-    //     const user = new User({
-    //       name: 'Karl',
-    //       email: 'k@w.dev',
-    //       cart: { items: [] },
-    //     });
-    //     user.save();
-    //   }
-    // });
     console.log('Mongoose Connected To MongoDB');
     app.listen(3000);
   })
   .catch(err => console.log(`Mongoose Connect Error`, err));
+
+//else if (errorMessage) { %> <%= previousValues.decription %> <% } else { %><% } %>
