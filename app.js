@@ -36,8 +36,14 @@ app.use(
 
 app.use(csrfProtection);
 app.use(flash());
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.user;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
 
 app.use((req, res, next) => {
+  // throw new Error('Sync Dummy');
   if (!req.session.user) {
     return next();
   }
@@ -48,13 +54,8 @@ app.use((req, res, next) => {
       next();
     })
     .catch(err => {
-      throw new Error(err);
+      next(new Error(err));
     });
-});
-app.use((req, res, next) => {
-  res.locals.isAuthenticated = req.session.user;
-  res.locals.csrfToken = req.csrfToken();
-  next();
 });
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
@@ -63,7 +64,11 @@ app.get('/500', errorController.getError500Page);
 app.use(errorController.getError404Page);
 app.use((error, req, res, next) => {
   // res.status(error.httpStatusCode).render(...)
-  res.redirect('/500');
+  res.render('500', {
+    path: '/500',
+    error: error,
+    pageTitle: 'Error',
+  });
 });
 
 mongoose

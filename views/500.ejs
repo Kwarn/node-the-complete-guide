@@ -4,5 +4,6 @@
   <%- include('includes/nav.ejs') %>
   <h1>An Error Occurred!</h1>
   <p> We're working on a fix! </p>
+  <% if (error) { %> <%= error %> <% } %>
 </body>
 <%- include('includes/end.ejs') %>

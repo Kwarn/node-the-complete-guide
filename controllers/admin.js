@@ -6,7 +6,7 @@ const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 // const Error = require(err)
 
-const errorHandler = (error, next) => {
+const createError = (error, next) => {
   const _error = new Error(error);
   _error.httpStatusCode = 500;
   return next(_error);
@@ -59,7 +59,7 @@ exports.postAddProduct = (req, res, next) => {
       console.log('Created Product', result);
       res.redirect('/admin/product-list');
     })
-    .catch(err => errorHandler(err, next));
+    .catch(err => createError(err, next));
 };
 
 exports.getEditProductPage = (req, res, next) => {
@@ -79,7 +79,7 @@ exports.getEditProductPage = (req, res, next) => {
         res.redirect('/');
       }
     })
-    .catch(err => errorHandler(err, next));
+    .catch(err => createError(err, next));
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -88,8 +88,6 @@ exports.postEditProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
   const productId = req.body.productId;
-
-  console.log('--------DESC----------', description);
   const errors = validationResult(req).errors;
   if (errors.length > 0) {
     return res.status(422).render('admin/edit-product', {
@@ -122,7 +120,7 @@ exports.postEditProduct = (req, res, next) => {
         res.redirect('/');
       });
     })
-    .catch(err => errorHandler(err, next));
+    .catch(err => createError(err, next));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
@@ -131,7 +129,7 @@ exports.postDeleteProduct = (req, res, next) => {
       console.log('Product Destroyed');
       res.redirect('/admin/product-list');
     })
-    .catch(err => errorHandler(err, next));
+    .catch(err => createError(err, next));
 };
 
 exports.getAdminProductList = (req, res, next) => {
@@ -145,5 +143,5 @@ exports.getAdminProductList = (req, res, next) => {
         path: '/admin/product-list',
       });
     })
-    .catch(err => errorHandler(err, next));
+    .catch(err => createError(err, next));
 };
