@@ -3,6 +3,8 @@ const mongodb = require('mongodb');
 const express = require('express');
 const router = express.Router();
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
+// const Error = require(err)
 
 exports.getAddProductPage = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -51,7 +53,9 @@ exports.postAddProduct = (req, res, next) => {
       console.log('Created Product');
       res.redirect('/admin/product-list');
     })
-    .catch(err => console.log(`adminAddProduct save product err`, err));
+    .catch(err => {
+      res.redirect('/500');
+    });
 };
 
 exports.getEditProductPage = (req, res, next) => {
