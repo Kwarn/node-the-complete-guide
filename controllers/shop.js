@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const express = require('express');
+const PDFDocument = require('pdfkit');
 const User = require('../models/user');
 const Order = require('../models/order');
 const fs = require('fs');
@@ -137,15 +138,16 @@ exports.getInvoice = (req, res, next) => {
         return next(new Error('Not Allowed'));
       const invoiceName = 'invoice-' + orderId + '.pdf';
       const invoicePath = path.join('data', 'invoices', invoiceName);
-      fs.readFile(invoicePath, (error, bufferData) => {
-        if (error) return next();
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader(
-          'Content-Disposition',
-          'inline; filename="' + invoiceName + '"'
-        );
-        res.send(bufferData);
-      });
+      const pdfDoc = new PDFDocument();
+      pdfDoc.pipe(fs.createWriteStream(invoicePath));
+      pdfDoc.pipe(res);
+      pdfDoc.text('Hello World!');
+      pdfDoc.end();
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        'inline; filename="' + invoiceName + '"'
+      );
     })
     .catch(err => next(err));
 };
