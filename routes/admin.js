@@ -18,7 +18,6 @@ router.post(
       .isString()
       .isLength({ min: 3 })
       .trim(),
-    check('imageUrl', 'Invalid Image URL.').isURL(),
     check(
       'price',
       'Invalid Price - Please use the format 00.00 excluding any currency symbol'
@@ -43,7 +42,6 @@ router.post(
       .isString()
       .isLength({ min: 3 })
       .trim(),
-    check('imageUrl', 'Invalid Image URL.').isURL(),
     check(
       'price',
       'Invalid Price - Please use the format 00.00 excluding any currency symbol'

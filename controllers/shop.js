@@ -1,9 +1,9 @@
 const Product = require('../models/product');
-// const Cart = require('../models/cart');
-// const Order = require('../models/order');
 const express = require('express');
 const User = require('../models/user');
 const Order = require('../models/order');
+const fs = require('fs');
+const path = require('path');
 
 exports.getProducts = (req, res, next) => {
   Product.find()
@@ -14,7 +14,7 @@ exports.getProducts = (req, res, next) => {
         path: '/products',
       });
     })
-    .catch(err => console.log('error', err));
+    .catch(err => next(new Error('Error getting products')));
 };
 
 exports.getProduct = (req, res, next) => {
@@ -28,7 +28,7 @@ exports.getProduct = (req, res, next) => {
         path: '/product-list',
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => next(new Error('Error getting product')));
 };
 
 exports.postCartDeleteItem = (req, res, next) => {
@@ -126,4 +126,26 @@ exports.postOrder = (req, res, next) => {
       res.redirect('/orders');
     })
     .catch(err => console.log(`Post Order Error`, err));
+};
+
+exports.getInvoice = (req, res, next) => {
+  const orderId = req.params.orderId;
+  Order.findById(orderId)
+    .then(order => {
+      if (!order) return next(new Error('No order found.'));
+      if (order.user.userId.toString() !== req.user._id.toString())
+        return next(new Error('Not Allowed'));
+      const invoiceName = 'invoice-' + orderId + '.pdf';
+      const invoicePath = path.join('data', 'invoices', invoiceName);
+      fs.readFile(invoicePath, (error, bufferData) => {
+        if (error) return next();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader(
+          'Content-Disposition',
+          'inline; filename="' + invoiceName + '"'
+        );
+        res.send(bufferData);
+      });
+    })
+    .catch(err => next(err));
 };

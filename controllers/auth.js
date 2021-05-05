@@ -165,38 +165,36 @@ exports.getReset = (req, res, next) => {
 };
 
 exports.postReset = (req, res, next) => {
-  crypto
-    .randomBytes(32, (error, buffer) => {
-      if (error) {
-        console.log(error);
-        res.redirect('/reset');
-      }
-      const token = buffer.toString('hex');
-      User.findOne({ email: req.body.email })
-        .then(user => {
-          if (!user) {
-            req.flash('Reset Error', 'No account with that email found.');
-            return res.redirect('/reset');
-          }
-          user.resetToken = token;
-          user.resetTokenExpiration = Date.now() + 3600000;
-          return user.save();
-        })
-        .then(result => {
-          res.redirect('/');
-          transport.sendMail({
-            from: 'shop@nodecomplete.com',
-            to: req.body.email,
-            subject: 'Reset Password Request',
-            html: `
+  crypto.randomBytes(32, (error, buffer) => {
+    if (error) {
+      console.log(error);
+      res.redirect('/reset');
+    }
+    const token = buffer.toString('hex');
+    User.findOne({ email: req.body.email })
+      .then(user => {
+        if (!user) {
+          req.flash('Reset Error', 'No account with that email found.');
+          return res.redirect('/reset');
+        }
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 3600000;
+        return user.save();
+      })
+      .then(result => {
+        res.redirect('/');
+        transport.sendMail({
+          from: 'shop@nodecomplete.com',
+          to: req.body.email,
+          subject: 'Reset Password Request',
+          html: `
             <p> Password Reset Requested </p>
             <p> Click this <a href="http://localhost:3000/new-password/${token}" >link to set a new password.</p> 
           `,
-          });
-        })
-        .catch(err => createError(err, next));
-    })
-    .catch(err => createError(err, next));
+        });
+      })
+      .catch(err => createError(err, next));
+  });
 };
 
 exports.getNewPassword = (req, res, next) => {
