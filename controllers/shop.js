@@ -146,7 +146,7 @@ exports.getInvoice = (req, res, next) => {
       let totalPrice = 0;
       order.products.forEach(p => {
         totalPrice += p.qty * p.product.price;
-        pdfDoc.text(`${p.product.title} -- ${p.qty} -- x $${p.product.price}`);
+        pdfDoc.fontSize(14).text(`${p.product.title} -- ${p.qty} -- x $${p.product.price}`);
       });
       pdfDoc.text('Total Price: $' + totalPrice);
 
