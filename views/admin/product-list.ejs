@@ -25,11 +25,9 @@
             </div>
             <div class="card__actions">
               <a href="/admin/edit-product/<%= product._id %>?edit=true" class="btn">Edit</a>
-              <form action="/admin/delete-product" method="POST">
-                <input type="hidden" value="<%= product._id %>" name="productId">
-                <input name="_csrf" type="hidden" , value="<%= csrfToken %>" />
-                <button class="btn" type="submit">delete</button>
-              </form>
+              <input type="hidden" value="<%= product._id %>" name="productId">
+              <input name="_csrf" type="hidden" , value="<%= csrfToken %>" />
+              <button class="btn" type="button" onclick="deleteProduct(this)">delete</button>
             </div>
           </article>
           <% } %>
@@ -41,3 +39,4 @@
         
 </body>
 <%- include('../includes/end.ejs') %>
+<script src="/js/admin.js"></script>

@@ -60,6 +60,10 @@ router.get(
   isAuth,
   adminController.getEditProductPage
 );
-router.post('/delete-product', isAuth, adminController.postDeleteProduct);
+router.delete(
+  '/product-list/:productId',
+  isAuth,
+  adminController.deleteProduct
+);
 
 module.exports = router;
