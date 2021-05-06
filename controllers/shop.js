@@ -8,6 +8,12 @@ const path = require('path');
 
 const ITEMS_PER_PAGE = 2;
 
+const createError = (error, next) => {
+  const _error = new Error(error);
+  _error.httpStatusCode = 500;
+  return next(_error);
+};
+
 exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1;
   let totalProducts;
@@ -75,7 +81,6 @@ exports.getCartPage = (req, res, next) => {
     .execPopulate()
     .then(user => {
       const products = user.cart.items;
-      console.log('getCart Page products', products);
       res.render('shop/cart', {
         products: products,
         pageTitle: 'Shopping Cart',
@@ -125,10 +130,23 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCheckoutPage = (req, res, next) => {
-  res.render('shop/checkout', {
-    pageTitle: 'Checkout',
-    path: '/checkout',
-  });
+  req.user
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+      const products = user.cart.items;
+      let totalPrice = 0;
+      products.forEach(p => {
+        totalPrice += p.qty * p.productId.price;
+      });
+      res.render('shop/checkout', {
+        path: '/checkout',
+        pageTitle: 'Checkout',
+        products: products,
+        totalPrice: totalPrice,
+      });
+    })
+    .catch(error => createError(error, next));
 };
 
 exports.postOrder = (req, res, next) => {

@@ -1,0 +1,24 @@
+<%- include('../includes/head.ejs') %>
+</head>
+    <link rel="stylesheet" href="/css/cart.css">
+<body>
+  <%- include('../includes/nav.ejs') %>
+  <main>
+    <ul class="cart__item-list">
+      <% products.forEach(p => { %>
+      <li class="cart__item">
+        <h1><%= p.productId.title %></h1>
+        <h2>Quantity: <%= p.qty %></h2>
+        <h2>Price: $<%= p.productId.price %></h2>
+        <form action="/cart-delete-item" method="POST">
+          <input type="hidden" value="<%= p.productId._id %>" name="productId">
+          <input name="_csrf" type="hidden" , value="<%= csrfToken %>" />
+        </form>
+      </li>
+      <% }) %>
+    </ul>
+    <div>
+      <h1 class="centered"> Total: $<%= totalPrice %></h1>
+    </div>
+  </main>
+<%- include('../includes/end.ejs') %>
