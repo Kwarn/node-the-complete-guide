@@ -1,4 +1,7 @@
 const Product = require('../models/product');
+const stripe = require('stripe')(
+  'API_KEY'
+);
 const express = require('express');
 const PDFDocument = require('pdfkit');
 const User = require('../models/user');
@@ -130,20 +133,40 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCheckoutPage = (req, res, next) => {
+  let products;
+  let totalPrice = 0;
   req.user
     .populate('cart.items.productId')
     .execPopulate()
     .then(user => {
-      const products = user.cart.items;
-      let totalPrice = 0;
+      products = user.cart.items;
+      totalPrice = 0;
       products.forEach(p => {
         totalPrice += p.qty * p.productId.price;
       });
+
+      return stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: products.map(p => {
+          return {
+            name: p.productId.title,
+            description: p.productId.description,
+            amount: p.productId.price * 100,
+            currency: 'usd',
+            quantity: p.qty,
+          };
+        }),
+        success_url: `${req.protocol}://${req.get('host')}/checkout/success`,
+        cancel_url: `${req.protocol}://${req.get('host')}/checkout/cancel`,
+      });
+    })
+    .then(session => {
       res.render('shop/checkout', {
         path: '/checkout',
         pageTitle: 'Checkout',
         products: products,
         totalPrice: totalPrice,
+        sessionId: session.id,
       });
     })
     .catch(error => createError(error, next));
@@ -211,3 +234,34 @@ exports.getInvoice = (req, res, next) => {
     })
     .catch(err => next(err));
 };
+
+exports.getCheckoutSuccess = (req, res, next) => {
+  req.user
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+      const products = user.cart.items.map(p => {
+        return {
+          product: { ...p.productId._doc },
+          qty: p.qty,
+        };
+      });
+      const order = new Order({
+        products: products,
+        user: {
+          email: req.session.user.email,
+          userId: req.session.user,
+        },
+      });
+      order.save();
+    })
+    .then(result => {
+      req.user.clearCart();
+    })
+    .then(result => {
+      res.redirect('/orders');
+    })
+    .catch(err => console.log(`Post Order Error`, err));
+};
+
+exports.getCheckoutCancel = (req, res, next) => {};

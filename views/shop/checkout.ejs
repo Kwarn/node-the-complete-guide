@@ -20,5 +20,19 @@
     <div>
       <h1 class="centered"> Total: $<%= totalPrice %></h1>
     </div>
+    <div class="centered">
+      <button id="order-button" class="button">Order now</button>
+      <script src="https://js.stripe.com/v3/"></script>
+      <script>
+        const stripe = Stripe("API_KEY");
+        const orderBtn = document.getElementById('order-button');
+        orderBtn.addEventListener('click', ()=> {
+          console.log('clicked')
+          stripe.redirectToCheckout({
+            sessionId: '<%= sessionId %>',
+          })
+        })
+      </script>
+    </div>
   </main>
 <%- include('../includes/end.ejs') %>
