@@ -1,6 +1,9 @@
 // const dotenv = require('dotenv').config();
+const fs = require('fs');
+const https = require('https');
 const compression = require('compression');
 const helmet = require('helmet');
+const morgan = require('morgan');
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
@@ -24,10 +27,19 @@ const store = new MongoDBStore({ uri: MONGODB_URI, collection: 'sessions' });
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, 'access.log'),
+  { flags: 'a' }
+);
+
 app.use(helmet());
 app.use(compression());
+app.use(morgan('combined', { stream: accessLogStream }));
 
 const csrfProtection = csrf();
+// const privateKey = fs.readFileSync('server.key');
+// const certificate = fs.readFileSync('server.cert');
+
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'images');
@@ -106,6 +118,8 @@ mongoose
   })
   .then(result => {
     console.log('Mongoose Connected To MongoDB');
+    // https
+    //   .createServer({ key: privateKey, cert: certificate }, app)
     app.listen(process.env.PORT || 3000);
   })
   .catch(err => console.log(`Mongoose Connect Error`, err));
