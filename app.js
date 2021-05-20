@@ -1,4 +1,6 @@
-const dotenv = require('dotenv').config();
+// const dotenv = require('dotenv').config();
+const compression = require('compression');
+const helmet = require('helmet');
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
@@ -21,6 +23,9 @@ const app = express();
 const store = new MongoDBStore({ uri: MONGODB_URI, collection: 'sessions' });
 app.set('view engine', 'ejs');
 app.set('views', 'views');
+
+app.use(helmet());
+app.use(compression());
 
 const csrfProtection = csrf();
 const fileStorage = multer.diskStorage({
