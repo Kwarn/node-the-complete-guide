@@ -23,7 +23,7 @@
       </div>
         <div class="form-control">
         <label for="description">Description</label>
-        <textarea class="<%= validationErrors.find(err => err.param === 'description') ? 'invalid' : ''%>" type="text" name="description" id="description" rows="5" ><% if (editing) { %><%=product.description%><% } else if (errorMessage) { %> <%= previousValues.decription %> <% } else { %>Test<% } %></textarea>
+        <textarea class="<%= validationErrors.find(err => err.param === 'description') ? 'invalid' : ''%>" type="text" name="description" id="description" rows="5" ><% if (editing) { %><%=product.description%><% } else if (errorMessage) { %> <%= previousValues.decription %> <% } else { %><% } %></textarea>
       </div>
       <input type="hidden" name="productId" value="<% if (editing) { %><%=product._id%><% } else { %><% } %>">
       <input name="_csrf" type="hidden" , value="<%= csrfToken %>" />

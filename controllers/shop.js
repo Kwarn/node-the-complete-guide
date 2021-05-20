@@ -1,7 +1,5 @@
 const Product = require('../models/product');
-const stripe = require('stripe')(
-  'API_KEY'
-);
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 const express = require('express');
 const PDFDocument = require('pdfkit');
 const User = require('../models/user');
