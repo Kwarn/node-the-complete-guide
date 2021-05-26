@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const deleteFile = filePath => {
+const deleteLocalFile = filePath => {
   if (filePath) {
     fs.unlink(filePath, err => {
       if (err) {
@@ -10,4 +10,4 @@ const deleteFile = filePath => {
   }
 };
 
-exports.deleteFile = deleteFile;
+exports.deleteLocalFile = deleteLocalFile;

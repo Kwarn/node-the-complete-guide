@@ -1,8 +1,8 @@
 // const dotenv = require('dotenv').config();
 const fs = require('fs');
 const https = require('https');
-const compression = require('compression');
-const helmet = require('helmet');
+// const compression = require('compression');
+// const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
 const express = require('express');
@@ -32,8 +32,8 @@ const accessLogStream = fs.createWriteStream(
   { flags: 'a' }
 );
 
-app.use(helmet());
-app.use(compression());
+// app.use(helmet());
+// app.use(compression());
 app.use(morgan('combined', { stream: accessLogStream }));
 
 const csrfProtection = csrf();

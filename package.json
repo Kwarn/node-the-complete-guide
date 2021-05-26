@@ -7,8 +7,8 @@
     "node": "10.19.0"
   },
   "scripts": {
-    "start": "NODE_ENV=production MONGO_USER=user1 MONGO_PASSWORD=l99vRGo3WaPuTcZ8 MONGO_DEFAULT_DATABASE=shop STRIPE_KEY=sk_test_51IoODMAH1dUJ6iMCfAAJWSrtVIbKPoypOflHvhIc4md3LtdLfcUnIeLZy0ceC2tgI9pXq0kjvf1RCqlZjr4MbPEy00AEPAqEfy node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NODE_ENV=production node app.js",
+    "test": "mocha",
     "start:dev": "nodemon app.js"
   },
   "nodemonConfig": {
@@ -19,6 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.914.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
@@ -44,5 +45,9 @@
     "pug": "^3.0.2",
     "sequelize": "^6.5.0",
     "stripe": "^8.148.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^8.4.0"
   }
 }
